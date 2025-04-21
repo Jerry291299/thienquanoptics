@@ -5,9 +5,9 @@ export const Uploadfile = async() => {
 
     // Configuration
     cloudinary.config({ 
-        cloud_name: "dabqsdm47", 
-        api_key: "255657924865145", 
-        api_secret: "<E6yjN9zbb2Dcon3_HYBN89WZQgc>" // Click 'View Credentials' below to copy your API secret
+        cloud_name: "dohckhz5a", 
+        api_key: "756544657237585", 
+        api_secret: "wuJPImMArIpgmIZbLSrG595Fuz0" // Click 'View Credentials' below to copy your API secret
     });
     
     // Upload an image

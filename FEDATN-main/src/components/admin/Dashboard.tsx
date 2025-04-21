@@ -169,7 +169,7 @@ const Dashboard = (props: Props) => {
     "Tên danh mục": product.category.name,
     "Số lượng sản phẩm": calculateTotalQuantity(product.variants),
     "Mô tả sản phẩm": product.moTa,
-    "Anh sản phẩm": product.variants?.[0]?.img?.[0] || "N/A", // Updated to use variant image
+    "Anh sản phẩm": product.variants?.[0]?.images?.[0] || "N/A", // Updated to use variant image
     "Trạng thái": product.status ? "Hoạt động" : "Vô hiệu hóa",
   }));
 
@@ -300,7 +300,7 @@ const Dashboard = (props: Props) => {
                         <td className="px-6 py-4 text-sm font-light text-gray-900">
                           <img
                             className="w-20 h-20 object-cover rounded-md shadow-md"
-                            src={product.variants?.[0]?.img?.[0] || "N/A"}
+                            src={product.variants?.[0]?.images?.[0] || "N/A"}
                             alt=""
                           />
                         </td>

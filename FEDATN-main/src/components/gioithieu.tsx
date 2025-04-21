@@ -9,11 +9,14 @@ import twitter from "../anh/Twitter.png";
 import nguoi from "../anh/user.png";
 import logo from "./img/logothiênquangdo-01.png";
 import { useEffect, useState } from "react";
-import iconarrow from "./icons/down-arrow_5082780.png"
+import iconarrow from "./icons/down-arrow_5082780.png";
 import canho from "./img/etty.png";
-const Header = () => {
+import Header2 from "./Header2";
+import Footer from "./Footer";
+
+const Gioithieu = () => {
   const [user, setUser] = useState<{
-    info: { role: string; email: string;  id: string; };
+    info: { role: string; email: string; id: string };
     id: string;
   } | null>(null);
   const [isSubMenuOpen, setIsSubMenuOpen] = useState(false);
@@ -38,225 +41,151 @@ const Header = () => {
 
   return (
     <>
-      <div className="container mx-auto w-full">
-        <div className="up py-[15px] flex justify-between font-medium pr-[10px]">
-          <div className="trái flex">
-            <p className="border-r-2 border-black px-[20px]">
-              Phone Number: 0344357227
+      <Header2 />
+      <section
+        className="relative bg-cover bg-center py-16"
+        style={{
+          backgroundImage: `url('https://klbtheme.com/blonwe/glasses/wp-content/uploads/sites/11/2023/10/about-image-1.jpg')`,
+        }}
+      >
+        {/* Overlay for better text readability */}
+        <div className="absolute inset-0 bg-black opacity-30"></div>
+
+        {/* Content */}
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          {/* Subheading */}
+          <h2 className="text-lg font-semibold text-white mb-2">
+            Giới thiệu về Blonwe
+          </h2>
+
+          {/* Main Heading */}
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">
+            BẠN CÓ MUỐN BIẾT CHÚNG TÔI KHÔNG?
+          </h1>
+
+          {/* Main Text */}
+          <p className="text-xl md:text-2xl text-white mb-4">
+          Hãy để chúng tôi giới thiệu ngắn gọn về furnob cho bạn để bạn hiểu rõ hơn về chất lượng của chúng tôi.          </p>
+
+          
+        </div>
+      </section>
+
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Heading and Paragraph */}
+          <div className="text-center mb-12">
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+              Chào mừng bạn đến với không gian mua sắm mắt kính trực tuyến – nơi hội tụ của sự sáng tạo, công nghệ tiên tiến và phong cách thời trang độc đáo.
+            </h1>
+            <p className="text-base md:text-lg text-gray-600 max-w-3xl mx-auto">
+              Chào mừng bạn đến với không gian mua sắm mắt kính trực tuyến – nơi hội tụ của sự sáng tạo, công nghệ tiên tiến và phong cách thời trang độc đáo. Đây là nơi chúng tôi mang đến cho bạn những sản phẩm mắt kính chất lượng, đa dạng về màu sắc, mẫu mã và phù hợp với nhiều phong cách khác nhau. Mỗi chiếc kính không chỉ là một phụ kiện bảo vệ đôi mắt mà còn là biểu tượng thể hiện cá tính và phong cách sống hiện đại.
             </p>
-            <p className="px-[20px]">Email:FPTdatn2025@gmail.com</p>
-          </div>
-          <div className="icon flex pr-[300px] gap-4">
-            <img className="w-6 h-6" src={Facebook} alt="" />
-            <img className="w-6 h-6" src={insta} alt="" />
-            <img className="w-6 h-6" src={twitter} alt="" />
-            <img className="w-6 h-6" src={link} alt="" />
           </div>
 
-          <div className="phải flex gap-3">
-            {user ? (
-              <div className="relative">
-                <div
-                  className="flex items-center cursor-pointer border-2 border-black rounded-xl px-[10px] py-[5px]"
-                  onClick={toggleSubMenu}
-                >
-                  <img
-                    src={nguoi}
-                    alt="Profile"
-                    className="w-5 h-5"
-                  />
-                  <p className="ml-2 flex gap-2">{user?.info?.email} 
-                    <img className="w-4 h-4 mt-[5px]" src={iconarrow} alt="" />
-                  </p>
-                </div>
-
-                {isSubMenuOpen && (
-                  <ul className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md py-2 z-10">
-                    {user?.info?.role === "admin" && (
-                      <li className="hover:bg-gray-100">
-                        <Link
-                          to="/admin"
-                          className="block px-4 py-2"
-                          onClick={() => setIsSubMenuOpen(false)}
-                        >
-                          Admin
-                        </Link>
-                      </li>
-                    )}
-
-                    {(user?.info?.role === "user" || user?.info?.role === "admin") && (
-                      <>
-                        <li className="hover:bg-gray-100">
-                          <Link
-                            to={`/Cart/${user?.info?.id}`}
-                            className="block px-4 py-2"
-                            onClick={() => setIsSubMenuOpen(false)}
-                          >
-                            Xem Giỏ hàng
-                          </Link>
-                        </li>
-                        <li className="hover:bg-gray-100">
-                          <Link
-                            to="/order"
-                            className="block px-4 py-2"
-                            onClick={() => setIsSubMenuOpen(false)}
-                          >
-                            Xem Đơn hàng
-                          </Link>
-                        </li>
-                      </>
-                    )}
-
-                    <li className="hover:bg-gray-100">
-                      <button
-                        onClick={() => {
-                          handleLogout();
-                          setIsSubMenuOpen(false);
-                        }}
-                        className="block w-full text-left px-4 py-2"
-                      >
-                        Logout
-                      </button>
-                    </li>
-                  </ul>
-                )}
-              </div>
-            ) : (
-              <>
-                <Link to={"/login"}>
-                  <div className="flex">
-                    <img
-                      className="scale-[0.9] pl-[30px] pr-[10px]"
-                      src={nguoi}
-                      alt=""
-                    />
-                    Login
-                  </div>
-                </Link>
-                <Link to={"/register"}>
-                  <div className="flex">
-                    <img
-                      className="scale-[0.9] pl-[30px] pr-[10px]"
-                      src={nguoi}
-                      alt=""
-                    />
-                    Register
-                  </div>
-                </Link>
-              </>
-            )}
-          </div>
-        </div>
-        
-
-        <div className="down flex justify-between border-y-2 py-[12px] border-black pr-[10px]">
-          <img className="h-24 pl-[40px]" src={logo} alt="" />
-          <div className="right flex pl-[30px]">
-            <div className="text flex gap-14 pt-[25px] pr-[100px] text-lg">
-              <Link to="/" className="hover:border-b-2 border-black">
-                Home
-              </Link>
-
-              <NavLink to={"/products"} className="hover:border-b-2 border-black">
-                Sản phẩm
-              </NavLink>
-
-              <NavLink to={"/tintuc"} className="hover:border-b-2 border-black">
-                Tin tức
-              </NavLink>
-              <NavLink to={"/gioithieu"} className="hover:border-b-2 border-black">
-                Giới Thiệu
-              </NavLink>
+          {/* Statistics */}
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12">
+            <div className="text-center">
+              <h3 className="text-3xl md:text-4xl font-bold text-gray-800">350+</h3>
+              <p className="text-gray-600">Cửa hàng</p>
             </div>
+            <div className="text-center">
+              <h3 className="text-3xl md:text-4xl font-bold text-gray-800">30.459</h3>
+              <p className="text-gray-600">Đánh giá tốt</p>
+            </div>
+            <div className="text-center">
+              <h3 className="text-3xl md:text-4xl font-bold text-gray-800">800K</h3>
+              <p className="text-gray-600">Sản phẩm bán ra</p>
+            </div>
+            <div className="text-center">
+              <h3 className="text-3xl md:text-4xl font-bold text-gray-800">1950+</h3>
+              <p className="text-gray-600">Sản phẩm</p>
+            </div>
+            <div className="text-center">
+              <h3 className="text-3xl md:text-4xl font-bold text-gray-800">2.8K</h3>
+              <p className="text-gray-600">Đơn hàng</p>
+            </div>
+          </div>
 
-            <div className="search px-[30px] pt-[23px]">
-              <div className="relative">
-                <input
-                  type="text"
-                  className="p-2 pl-8 rounded border border-gray-200 bg-gray-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-yellow-600 focus:border-transparent"
-                  placeholder="search..."
-                />
-                <svg
-                  className="w-4 h-4 absolute right-[10px] top-3.5"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
-              </div>
+          {/* Images */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+            <div className="flex justify-center">
+              <img
+                src="https://8518.matbao.website/wp-content/uploads/2023/03/about-image-2.jpg"
+                alt="People working with laptop"
+                className="w-full  object-cover rounded-lg max-w-lg"
+              />
+            </div>
+            <div className="flex justify-center">
+              <img
+                src="https://8518.matbao.website/wp-content/uploads/2023/03/about-image-3.jpg"
+                alt="People discussing with laptop"
+                className="w-full object-cover rounded-lg max-w-md object-[top_20%]"
+              />
             </div>
           </div>
         </div>
-        <div className="container mx-auto px-4 py-8">
-      <div className="text-center mb-10">
-        <h1 className="text-4xl font-bold mb-4">Giới Thiệu Về Chúng Tôi</h1>
-        <p className="text-lg mb-4">
-          Chúng tôi là công ty hàng đầu trong lĩnh vực cung cấp các sản phẩm điện tử công nghệ chất lượng.
-        </p>
+      </section>
+
+      <div className="py-16 bg-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Heading */}
+        <div className="mb-8">
+          <div className="flex items-center mb-2">
+            <span className="text-2xl font-bold text-gray-400 mr-2">01.</span>
+            <h2 className="text-lg font-semibold text-gray-600">
+              Sứ Mệnh Và Tầm Nhìn
+            </h2>
+          </div>
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-800">
+            Sứ mệnh của chúng tôi là đem đến trải nghiệm mua sắm trực tuyến hoàn hảo, kết hợp giữa công nghệ hiện đại và thiết kế thời trang định cao.
+          </h1>
+        </div>
+
+        {/* Content and Image */}
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Image */}
+          <div className="lg:w-1/2">
+            <img
+              src="https://8518.matbao.website/wp-content/uploads/2023/03/about-image-4.jpg"
+              alt="People working with laptops"
+              className="w-full   object-cover rounded-lg"
+            />
+          </div>
+
+          {/* Text Content */}
+          <div className="lg:w-1/2">
+            {/* Paragraph */}
+            <p className="text-base md:text-lg text-gray-600 mb-6">
+              Sứ mệnh của chúng tôi là đem đến trải nghiệm mua sắm trực tuyến hoàn hảo, kết hợp giữa công nghệ hiện đại và thiết kế thời trang định cao. Chúng tôi cam kết cung cấp những sản phẩm mắt kính được lựa chọn kỹ càng từ các nguồn cung ứng uy tín, đảm bảo tiêu chuẩn chất lượng cao và vẻ đẹp tinh tế. Mục tiêu của trang web là trở thành nguồn cảm hứng hàng đầu cho những ai yêu thích phong cách và bảo vệ sức khỏe đôi mắt.
+            </p>
+            <p className="text-base md:text-lg text-gray-600 mb-6">
+              Tầm nhìn của chúng tôi hướng đến việc tạo ra một cộng đồng yêu thời trang, nơi mọi người đều có thể dễ dàng khám phá và lựa chọn chiếc kính ứng ý, góp phần tôn vinh vẻ đẹp cá nhân. Chúng tôi tin rằng, qua mỗi sản phẩm, thông điệp về sự tự tin và đẳng cấp sẽ được lan tỏa, giúp bạn tự tin thể hiện bản thân trong mọi hoàn cảnh.
+            </p>
+
+            {/* List */}
+            <ul className="space-y-4">
+              <li className="flex items-start">
+                <span className="text-gray-800 mr-2">•</span>
+                  <strong>Kính Cận:</strong> Những mẫu kính cận được thiết kế với khung mạnh, nhẹ nhàng nhưng không kém phần thời trang, giúp tăng cường vẻ đẹp tự nhiên của khuôn mặt. Thấu kính được tối ưu để giảm thiểu ánh sáng xanh, bảo vệ mắt khỏi những tác hại từ màn hình số.
+                </li>
+              <li className="flex items-start">
+                <span className="text-gray-800 mr-2">•</span>
+                  <strong>Kính Râm:</strong> Vẻ ngoài thời thượng và trẻ trung, kính râm không chỉ bảo vệ mắt mà còn mang lại sự tự tin và phong cách thời trang nổi bật. Những mẫu kính râm với khung kính đa dạng, phù hợp với nhiều phong cách khác nhau.
+                </li>
+              <li className="flex items-start">
+                <span className="text-gray-800 mr-2">•</span>
+                  <strong>Kính Thể Thao:</strong> Dành cho những tín đồ yêu thể thao, các mẫu kính thể thao được thiết kế để đảm bảo độ bền cao, chống trầy xước, chống tia UV và phù hợp với mọi hoạt động ngoài trời. Mỗi chiếc kính không chỉ giúp bạn bảo vệ đôi mắt mà còn là biểu tượng của phong cách năng động.
+                </li>
+            </ul>
+          </div>
+        </div>
+      </div>
       </div>
 
-      <div className="flex flex-col md:flex-row items-center mb-10">
-        <div className="w-full md:w-1/2 mb-4 md:mb-0 md:pr-4">
-          <img src={logo} alt="Logo" className="w-full h-auto" />
-        </div>
-        <div className="w-full md:w-1/2 md:pl-4">
-          <h2 className="text-3xl font-semibold mb-4">Chúng Tôi Là Ai?</h2>
-          <p className="text-lg mb-4">
-            Chúng tôi cung cấp những sản phẩm đẹp và chất lượng cho mọi nhu cầu.
-          </p>
-        </div>
-      </div>
-
-      <h2 className="text-3xl font-semibold text-center mb-8">Tầm nhìn và sứ mệnh của Chúng Tôi</h2>
-
-      <div className="flex flex-col md:flex-row items-center mb-8">
-        <div className="w-full md:w-1/2 mb-4 md:pr-4">
-          <img src={canho} alt="Sản phẩm 1" className="w-full h-64 object-cover rounded-lg" />
-        </div>
-        <div className="w-full md:w-1/2 md:pl-4">
-          <h3 className="text-xl font-semibold mb-2">Giá trị và sự khác biệt</h3>
-          <p className="text-gray-700">Với mong muốn phát triển thương hiệu Việt bằng nội lực, Click Mobile đã chú trọng vào mua bán và sửa chữa điện thoại trong nước. Danh mục sản phẩm của Click Mobile thường xuyên được đổi mới và cập nhật, liên tục cung cấp cho khách hàng các dòng sản phẩm theo xu hướng mới nhất. Các sản phẩm thuộc ClickMobile luôn phù hợp với cuộc sống Á Đông, đem đến công nghệ hoàn hảo trong mọi nhu cầu.</p>
-        </div>
-      </div>
-
-      <div className="flex flex-col md:flex-row items-center mb-8">
-        <div className="w-full md:w-1/2 mb-4 md:pr-4">
-          <img src={canho} alt="Sản phẩm 2" className="w-full h-64 object-cover rounded-lg" />
-        </div>
-        <div className="w-full md:w-1/2 md:pl-4">
-          <h3 className="text-xl font-semibold mb-2">Chất lượng và dịch vụ</h3>
-          <p className="text-gray-700">Chất lượng của nguyên vật liệu, linh kiện và quy trình sản xuất của Click Mobile đều được kiểm định và giám sát chặt chẽ theo hệ thống quản lý chất lượng ISO 9001. Các sản phẩm của Click Mobile được thiết kế với tiêu chí tối ưu công năng, đảm bảo tính thẩm mỹ và độ bền cao. Trong những năm gần đây, thương hiệu không ngừng đổi mới theo xu hướng công nghệ xanh, mang đến những thiết bị di động không chỉ tiện ích mà còn thân thiện với môi trường, góp phần nâng cao trải nghiệm người dùng và bảo vệ cộng đồng.</p>
-        </div>
-      </div>
-
-      <div className="flex flex-col md:flex-row items-center mb-8">
-        <div className="w-full md:w-1/2 mb-4 md:pr-4">
-          <img src={canho} alt="Sản phẩm 3" className="w-full h-64 object-cover rounded-lg" />
-        </div>
-        <div className="w-full md:w-1/2 md:pl-4">
-          <h3 className="text-xl font-semibold mb-2">Click Mobile và Cộng Đồng</h3>
-          <p className="text-gray-700">Đóng góp cho cộng đồng là một phần trong sứ mệnh của Click Mobile. Hướng đến việc trở thành một thương hiệu tiên phong và có trách nhiệm, Click Mobile không ngừng thực hiện các hoạt động vì xã hội, như hỗ trợ trẻ em có hoàn cảnh khó khăn, tham gia các chương trình bảo vệ môi trường, áp dụng công nghệ xanh vào sản phẩm và tổ chức các sự kiện thiện nguyện. Mỗi hành động, mỗi sáng kiến đều là một bước tiến góp phần mang đến một cuộc sống tốt đẹp hơn cho cộng đồng.</p>
-        </div>
-      </div>
-
-      <div className="text-center">
-        <h2 className="text-3xl font-semibold mb-4">Liên Hệ Với Chúng Tôi</h2>
-        <p className="text-lg mb-4">
-          Nếu bạn có bất kỳ câu hỏi nào, xin vui lòng liên hệ với chúng tôi qua email: 
-          <a href="mailto:fptdatn2025@gmail.com" className="text-blue-500"> fptdatn2025@gmail.com</a>.
-        </p>
-      </div>
-    </div>
-      </div>
+    <Footer/>
     </>
   );
 };
 
-export default Header;
+export default Gioithieu;

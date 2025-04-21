@@ -112,27 +112,21 @@ const Header = () => {
           {/* Top Section */}
           <div className="flex justify-between items-center py-4">
             {/* Left Info */}
-            <div className="flex items-center space-x-6">
+            <div className="flex items-center space-x-7">
+            
               <div className="flex items-center">
-                <span className="w-px h-5 bg-gray-300 mr-3"></span>
-                <p className="text-white text-sm hover:text-gray-200 transition-colors duration-200">
-                  Theo dõi đơn hàng
-                </p>
-              </div>
-              <div className="flex items-center">
-                <span className="w-px h-5 bg-gray-300 mr-3"></span>
+                
                 <p className="text-white text-sm hover:text-gray-200 transition-colors duration-200">
                   Giới thiệu
                 </p>
               </div>
               <div className="flex items-center">
-                <span className="w-px h-5 bg-gray-300 mr-3"></span>
+               
                 <p className="text-white text-sm hover:text-gray-200 transition-colors duration-200">
                   Liên hệ
                 </p>
               </div>
               <div className="flex items-center">
-                <span className="w-px h-5 bg-gray-300 mr-3"></span>
                 <p className="text-white text-sm hover:text-gray-200 transition-colors duration-200">
                   Câu hỏi thường gặp
                 </p>
@@ -141,36 +135,18 @@ const Header = () => {
 
             {/* Right Actions */}
             <div className="flex items-center space-x-4">
-              <div className="flex items-center text-white">
-                <span className="mr-2">🇻🇳</span>
-                <select className="bg-transparent text-white border-none focus:outline-none">
-                  <option value="vi">Tiếng Việt</option>
-                  <option value="en">English</option>
-                </select>
-              </div>
-              <div className="flex items-center text-white">
-                <span className="mr-2">🇺🇸</span>
-                <select className="bg-transparent text-white border-none focus:outline-none">
-                  <option value="USD">USD</option>
-                  <option value="VND">VND</option>
-                </select>
-              </div>
-              <button className="text-white hover:text-gray-200">
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
-                  />
-                </svg>
-              </button>
+            <div className="">
+              <p className="text-white text-sm">
+                
+Bạn có thể liên hệ với chúng tôi 24/7 
+<span className="pl-[10px] text-[#fc5e22]">(028) 7777 7999</span>
+
+
+              </p>
+             </div>
+              
+              
+             
             </div>
           </div>
 
@@ -308,24 +284,8 @@ const Header = () => {
                           user.info.role === "admin" ||
                           user.info.role === "shipper") && (
                           <>
-                            <li className="hover:bg-gray-50">
-                              <Link
-                                to={`/Cart/${user.id}`}
-                                className="block px-4 py-2 text-gray-700 hover:text-gray-900"
-                                onClick={() => setIsSubMenuOpen(false)}
-                              >
-                                Giỏ hàng
-                              </Link>
-                            </li>
-                            <li className="hover:bg-gray-50">
-                              <Link
-                                to="/donhang"
-                                className="block px-4 py-2 text-gray-700 hover:text-gray-900"
-                                onClick={() => setIsSubMenuOpen(false)}
-                              >
-                                Đơn hàng
-                              </Link>
-                            </li>
+                            
+                           
                           </>
                         )}
                         <li className="hover:bg-gray-50">
@@ -353,25 +313,7 @@ const Header = () => {
                     </Link>
                   </>
                 )}
-                <Link to="/cart" className="relative text-white hover:text-gray-200">
-                  <svg
-                    className="w-6 h-6"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-                    />
-                  </svg>
-                  <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                    0
-                  </span>
-                </Link>
+                
               </div>
             </div>
           </div>

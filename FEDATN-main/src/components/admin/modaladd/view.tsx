@@ -119,9 +119,9 @@ const ProductView = () => {
                 {/* Variant Images */}
                 <div className="mt-4">
                   <h4 className="text-lg font-medium text-gray-800 mb-2">Ảnh của biến thể:</h4>
-                  {variant.img && variant.img.length > 0 ? (
+                  {variant.images && variant.images.length > 0 ? (
                     <div className="flex flex-wrap gap-4">
-                      {variant.img.map((imgUrl, imgIndex) => (
+                      {variant.images.map((imgUrl, imgIndex) => (
                         <div
                           key={imgIndex}
                           className="w-24 h-24 md:w-32 md:h-32 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-200"

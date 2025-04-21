@@ -11,7 +11,7 @@ export interface IVariant {
   color: string;
   basePrice: number;
   discount?: number;
-  img: string[];
+  images: string[];
   subVariants: ISubVariant[];
 }
 

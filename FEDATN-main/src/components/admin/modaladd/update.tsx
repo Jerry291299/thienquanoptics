@@ -1,26 +1,64 @@
 import React, { useEffect, useState } from "react";
-import { Form, Input, Select, notification, Button } from "antd";
+import { Form, Input, Select, notification } from "antd";
 import { getProductByID, updateProduct } from "../../../service/products";
 import { Icategory } from "../../../interface/category";
 import { getAllCategories } from "../../../service/category";
+import { IColor } from "../../../interface/color";
+import { getAllColors } from "../../../service/color";
+import { IBrand } from "../../../interface/brand";
+import { getAllBrands } from "../../../service/brand";
 import { upload } from "../../../service/upload";
 import LoadingComponent from "../../Loading";
 import { useNavigate, useParams } from "react-router-dom";
 import { IProductLite, ISubVariant, IVariant } from "../../../interface/products";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 
-// Extend IVariant to include new images for uploading
+// Mở rộng IVariant để bao gồm ảnh mới để tải lên
 type ExtendedVariant = IVariant & {
-  newImages: File[]; // New images to upload for the variant
+  newImages: File[];
+  imagePreviews: string[];
 };
 
 const ProductUpdate = () => {
   const { id } = useParams<{ id: string }>();
   const [category, setCategory] = useState<Icategory[]>([]);
+  const [colors, setColors] = useState<IColor[]>([]);
+  const [brands, setBrands] = useState<IBrand[]>([]);
   const [form] = Form.useForm();
   const [loading, setLoading] = useState<boolean>(false);
   const [product, setProduct] = useState<IProductLite | null>(null);
   const [variants, setVariants] = useState<ExtendedVariant[]>([]);
+  const [description, setDescription] = useState<string>("");
   const navigate = useNavigate();
+
+  // Cấu hình thanh công cụ React Quill
+  const quillModules = {
+    toolbar: [
+      [{ header: [1, 2, 3, false] }],
+      ["bold", "italic", "underline", "strike"],
+      [{ list: "ordered" }, { list: "bullet" }],
+      [{ align: [] }],
+      [{ font: [] }],
+      [{ size: ["small", false, "large", "huge"] }],
+      ["link"],
+      ["clean"],
+    ],
+  };
+
+  const quillFormats = [
+    "header",
+    "bold",
+    "italic",
+    "underline",
+    "strike",
+    "list",
+    "bullet",
+    "align",
+    "font",
+    "size",
+    "link",
+  ];
 
   const showNotification = (type: "success" | "error", title: string, description: string) => {
     notification[type]({
@@ -31,42 +69,45 @@ const ProductUpdate = () => {
   };
 
   useEffect(() => {
-    const fetchCategories = async () => {
+    const fetchData = async () => {
       try {
-        const data = await getAllCategories();
-        setCategory(data);
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-        showNotification("error", "Lỗi", "Không thể tải danh mục, vui lòng thử lại!");
-      }
-    };
+        // Lấy danh mục
+        const categoryData = await getAllCategories();
+        setCategory(categoryData);
 
-    const fetchProduct = async () => {
-      try {
+        // Lấy màu sắc
+        const colorData = await getAllColors();
+        setColors(colorData);
+
+        // Lấy thương hiệu
+        const brandData = await getAllBrands();
+        setBrands(brandData);
+
+        // Lấy sản phẩm
         const productData = await getProductByID(id);
         setProduct(productData);
+        setDescription(productData.moTa || "");
         const extendedVariants = productData.variants.map((variant: IVariant) => ({
           ...variant,
-          newImages: [], // Initialize empty array for new images
+          newImages: [],
+          imagePreviews: variant.images,
         }));
         setVariants(extendedVariants);
         form.setFieldsValue({
           masp: productData.masp,
           name: productData.name,
           moTa: productData.moTa,
-          brand: productData.brand,
+          brand: typeof productData.brand === "string" ? productData.brand : productData.brand._id,
           category: typeof productData.category === "string" ? productData.category : productData.category._id,
           gender: productData.gender,
         });
-        console.log("Product data:", productData);
+        console.log("Dữ liệu sản phẩm:", productData);
       } catch (error) {
-        console.error("Error fetching product:", error);
-        showNotification("error", "Lỗi", "Không thể tải sản phẩm, vui lòng thử lại!");
+        console.error("Lỗi khi lấy dữ liệu:", error);
+        showNotification("error", "Lỗi", "Không thể tải dữ liệu, vui lòng thử lại!");
       }
     };
-
-    fetchCategories();
-    fetchProduct();
+    fetchData();
   }, [id, form]);
 
   const activeCategories = category.filter((cat) => cat.status === "active");
@@ -74,19 +115,19 @@ const ProductUpdate = () => {
   const handleVariantImageChange = (variantIndex: number, e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const newFiles = Array.from(e.target.files);
-    setVariants((prev) => {
-      const updatedVariants = [...prev];
-      updatedVariants[variantIndex].newImages = [...updatedVariants[variantIndex].newImages, ...newFiles];
-      return updatedVariants;
-    });
+    const updatedVariants = [...variants];
+    updatedVariants[variantIndex].newImages = [...updatedVariants[variantIndex].newImages, ...newFiles];
+    const newPreviews = newFiles.map((file) => URL.createObjectURL(file));
+    updatedVariants[variantIndex].imagePreviews = [...updatedVariants[variantIndex].imagePreviews, ...newPreviews];
+    setVariants(updatedVariants);
   };
 
   const handleRemoveVariantImage = (variantIndex: number, url: string) => {
-    setVariants((prev) => {
-      const updatedVariants = [...prev];
-      updatedVariants[variantIndex].img = updatedVariants[variantIndex].img.filter((img) => img !== url);
-      return updatedVariants;
-    });
+    const updatedVariants = [...variants];
+    updatedVariants[variantIndex].imagePreviews = updatedVariants[variantIndex].imagePreviews.filter((image) => image !== url);
+    updatedVariants[variantIndex].images = updatedVariants[variantIndex].images.filter((image) => image !== url);
+    updatedVariants[variantIndex].newImages = updatedVariants[variantIndex].newImages.filter((file) => !URL.createObjectURL(file).includes(url));
+    setVariants(updatedVariants);
   };
 
   const uploadImages = async (files: File[]): Promise<string[]> => {
@@ -98,7 +139,7 @@ const ProductUpdate = () => {
         const response = await upload(formData);
         urls.push(response.payload[0].url);
       } catch (error) {
-        console.error("Error uploading image:", error);
+        console.error("Lỗi khi tải ảnh lên:", error);
         showNotification("error", "Lỗi tải ảnh", "Không thể tải ảnh lên, vui lòng thử lại!");
       }
     }
@@ -108,7 +149,15 @@ const ProductUpdate = () => {
   const addVariant = () => {
     setVariants((prev) => [
       ...prev,
-      { color: "", basePrice: 0, discount: undefined, img: [], newImages: [], subVariants: [{ specification: "", value: "", additionalPrice: 0, quantity: 0 }] },
+      {
+        color: "",
+        basePrice: 0,
+        discount: undefined,
+        images: [],
+        newImages: [],
+        imagePreviews: [],
+        subVariants: [{ specification: "", value: "", additionalPrice: 0, quantity: 0 }],
+      },
     ]);
   };
 
@@ -130,10 +179,11 @@ const ProductUpdate = () => {
 
   const handleVariantChange = (index: number, key: keyof IVariant, value: string | number | undefined) => {
     const newVariants = [...variants];
+    if (index >= newVariants.length) return;
     if (key === "color") {
       newVariants[index][key] = value as string;
-      const colors = newVariants.map((v) => v.color);
-      if (colors.filter((c) => c === value).length > 1) {
+      const colorIds = newVariants.map((v) => v.color);
+      if (colorIds.filter((c) => c === value).length > 1) {
         showNotification("error", "Lỗi", "Màu sắc này đã tồn tại trong các biến thể khác!");
         return;
       }
@@ -152,6 +202,7 @@ const ProductUpdate = () => {
     value: string | number
   ) => {
     const updatedVariants = [...variants];
+    if (variantIndex >= updatedVariants.length || subIndex >= updatedVariants[variantIndex].subVariants.length) return;
     const subVariants = [...updatedVariants[variantIndex].subVariants];
     if (key === "specification" || key === "value") {
       subVariants[subIndex][key] = value as string;
@@ -163,74 +214,102 @@ const ProductUpdate = () => {
   };
 
   const onFinish = async (values: any) => {
+    if (!description || description === "<p><br></p>") {
+      showNotification("error", "Lỗi", "Bắt buộc nhập mô tả sản phẩm!");
+      return;
+    }
+
     setLoading(true);
 
-    // Check for duplicate colors
-    const colors = variants.map((variant) => variant.color);
-    const hasDuplicates = colors.length !== new Set(colors).size;
+    const colorIds = variants.map((variant) => variant.color);
+    const hasDuplicates = colorIds.length !== new Set(colorIds).size;
     if (hasDuplicates) {
       showNotification("error", "Lỗi", "Có màu sắc trùng lặp trong các biến thể!");
       setLoading(false);
       return;
     }
 
-    // Validate subVariants
     for (const variant of variants) {
+      if (!variant.color || variant.basePrice <= 0) {
+        const colorName = colors.find((c) => c._id === variant.color)?.name || "chưa có màu";
+        showNotification("error", "Lỗi", `Biến thể ${colorName} phải có màu sắc và giá cơ bản hợp lệ!`);
+        setLoading(false);
+        return;
+      }
       if (variant.subVariants.length === 0) {
-        showNotification("error", "Lỗi", `Biến thể ${variant.color} phải có ít nhất một sub-variant!`);
+        const colorName = colors.find((c) => c._id === variant.color)?.name || "chưa có màu";
+        showNotification("error", "Lỗi", `Biến thể ${colorName} phải có ít nhất một sub-variant!`);
+        setLoading(false);
+        return;
+      }
+      if (variant.images.length === 0 && variant.newImages.length === 0) {
+        const colorName = colors.find((c) => c._id === variant.color)?.name || "chưa có màu";
+        showNotification("error", "Lỗi", `Biến thể ${colorName} phải có ít nhất một ảnh!`);
         setLoading(false);
         return;
       }
       const subVariantKeys = variant.subVariants.map((sv) => `${sv.specification}-${sv.value}`);
       if (subVariantKeys.length !== new Set(subVariantKeys).size) {
-        showNotification("error", "Lỗi", `Có sub-variant trùng lặp trong biến thể ${variant.color}!`);
+        const colorName = colors.find((c) => c._id === variant.color)?.name || "chưa có màu";
+        showNotification("error", "Lỗi", `Có sub-variant trùng lặp trong biến thể ${colorName}!`);
         setLoading(false);
         return;
       }
     }
 
     try {
-      // Upload new images for each variant
       const updatedVariants = await Promise.all(
         variants.map(async (variant) => {
           const newImageUrls = await uploadImages(variant.newImages);
           return {
-            color: variant.color,
-            basePrice: variant.basePrice,
-            discount: variant.discount,
-            img: [...variant.img, ...newImageUrls],
-            subVariants: variant.subVariants,
+            color: variant.color, // Đây là _id của Color
+            basePrice: Number(variant.basePrice),
+            discount: variant.discount !== undefined ? Number(variant.discount) : undefined,
+            images: [...variant.images, ...newImageUrls],
+            subVariants: variant.subVariants
+              .filter((sv) => sv.specification && sv.value && sv.quantity >= 0 && sv.additionalPrice >= 0)
+              .map((sv) => ({
+                specification: sv.specification,
+                value: sv.value,
+                additionalPrice: Number(sv.additionalPrice),
+                quantity: Number(sv.quantity),
+              })),
           };
         })
       );
 
-      const selectedCategory = category.find((cat) => cat._id === values.category);
-      if (!selectedCategory) {
-        throw new Error("Selected category not found");
+      const validVariants = updatedVariants.filter(
+        (variant) => variant.color && variant.basePrice > 0 && variant.subVariants.length > 0 && variant.images.length > 0
+      );
+
+      if (validVariants.length === 0) {
+        showNotification("error", "Lỗi", "Phải có ít nhất một biến thể hợp lệ với sub-variant và ảnh!");
+        setLoading(false);
+        return;
       }
 
       const payload: IProductLite = {
         _id: id!,
         masp: values.masp,
         name: values.name,
-        moTa: values.moTa,
-        brand: values.brand,
-        category: selectedCategory,
+        moTa: description,
+        brand: values.brand, // Đây là _id của Brand
+        category: values.category, // Đây là _id của Category
         gender: values.gender,
         status: true,
-        variants: updatedVariants,
+        variants: validVariants,
         discountCode: product?.discountCode,
         createdAt: product?.createdAt || new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
 
-      console.log("Payload being sent:", JSON.stringify(payload, null, 2));
+      console.log("Dữ liệu gửi đi:", JSON.stringify(payload, null, 2));
 
       await updateProduct(id!, payload);
       showNotification("success", "Thành công", "Cập nhật sản phẩm thành công!");
       navigate("/admin/dashboard", { state: { shouldRefetch: true } });
     } catch (error) {
-      console.error("Error updating product:", error);
+      console.error("Lỗi khi cập nhật sản phẩm:", error);
       showNotification("error", "Lỗi", "Không thể cập nhật sản phẩm, vui lòng thử lại!");
     } finally {
       setLoading(false);
@@ -244,171 +323,302 @@ const ProductUpdate = () => {
   return (
     <>
       {loading && <LoadingComponent />}
-      <div className="max-w-6xl mx-auto p-8 bg-white shadow-xl rounded-xl">
-        <Form form={form} onFinish={onFinish} layout="vertical">
-          <div className="flex flex-wrap md:flex-nowrap gap-8">
-            {/* Left Column */}
-            <div className="flex-1 space-y-6">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 bg-gray-50 min-h-screen">
+        <h1 className="text-3xl font-bold text-gray-900 mb-8 tracking-tight">
+          Cập Nhật Sản Phẩm
+        </h1>
+
+        <Form form={form} onFinish={onFinish} layout="vertical" className="bg-white shadow-lg rounded-lg p-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-6">
               <div>
-                <label className="text-lg font-semibold text-gray-800">Mã sản phẩm</label>
-                <Form.Item name="masp" rules={[{ required: true, message: "Bắt buộc nhập mã sản phẩm!" }]}>
-                  <Input placeholder="Nhập mã sản phẩm" className="text-gray-700 p-4 rounded-lg border-2 border-gray-300 focus:ring-2 focus:ring-blue-600 outline-none" />
+                <Form.Item
+                  name="masp"
+                  label={<span className="text-sm font-medium text-gray-700">Mã Sản Phẩm</span>}
+                  rules={[{ required: true, message: "Mã sản phẩm là bắt buộc!" }]}
+                >
+                  <Input
+                    placeholder="Nhập mã sản phẩm"
+                    className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
+                  />
                 </Form.Item>
               </div>
               <div>
-                <label className="text-lg font-semibold text-gray-800">Tên sản phẩm</label>
-                <Form.Item name="name" rules={[{ required: true, message: "Bắt buộc nhập tên sản phẩm!" }]}>
-                  <Input placeholder="Nhập tên sản phẩm" className="text-gray-700 p-4 rounded-lg border-2 border-gray-300 focus:ring-2 focus:ring-blue-600 outline-none" />
+                <Form.Item
+                  name="name"
+                  label={<span className="text-sm font-medium text-gray-700">Tên Sản Phẩm</span>}
+                  rules={[{ required: true, message: "Tên sản phẩm là bắt buộc!" }]}
+                >
+                  <Input
+                    placeholder="Nhập tên sản phẩm"
+                    className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
+                  />
                 </Form.Item>
               </div>
               <div>
-                <label className="text-lg font-semibold text-gray-800">Mô tả sản phẩm</label>
-                <Form.Item name="moTa" rules={[{ required: true, message: "Bắt buộc nhập mô tả sản phẩm!" }]}>
-                  <Input.TextArea placeholder="Nhập mô tả sản phẩm" className="text-gray-700 p-4 rounded-lg border-2 border-gray-300 focus:ring-2 focus:ring-blue-600 outline-none" rows={5} />
-                </Form.Item>
+                <label className="text-sm font-medium text-gray-700 block mb-2">Mô Tả Sản Phẩm</label>
+                <ReactQuill
+                  value={description}
+                  onChange={(value) => setDescription(value)}
+                  modules={quillModules}
+                  formats={quillFormats}
+                  placeholder="Nhập mô tả sản phẩm (hỗ trợ định dạng văn bản)"
+                  className="h-40 mb-12"
+                />
               </div>
             </div>
 
-            {/* Right Column */}
-            <div className="flex-1 space-y-6">
+            <div className="space-y-6">
               <div>
-                <label className="text-lg font-semibold text-gray-800">Danh mục</label>
-                <Form.Item name="category" rules={[{ required: true, message: "Vui lòng chọn danh mục!" }]}>
-                  <Select className="w-full rounded-lg border-2 border-gray-300 focus:ring-2 focus:ring-blue-600" placeholder="Chọn danh mục">
+                <Form.Item
+                  name="category"
+                  label={<span className="text-sm font-medium text-gray-700">Danh Mục</span>}
+                  rules={[{ required: true, message: "Vui lòng chọn danh mục!" }]}
+                >
+                  <Select
+                    placeholder="Chọn danh mục"
+                    className="w-full"
+                    dropdownClassName="rounded-lg"
+                    style={{ height: "48px" }}
+                  >
                     {activeCategories.map((categoryID: Icategory) => (
-                      <Select.Option key={categoryID._id} value={categoryID._id}>{categoryID.name}</Select.Option>
+                      <Select.Option key={categoryID._id} value={categoryID._id}>
+                        {categoryID.name}
+                      </Select.Option>
                     ))}
                   </Select>
                 </Form.Item>
               </div>
               <div>
-                <label className="text-lg font-semibold text-gray-800">Giới tính</label>
-                <Form.Item name="gender" rules={[{ required: true, message: "Vui lòng chọn giới tính!" }]}>
-                  <Select className="w-full rounded-lg border-2 border-gray-300 focus:ring-2 focus:ring-blue-600" placeholder="Chọn giới tính">
+                <Form.Item
+                  name="gender"
+                  label={<span className="text-sm font-medium text-gray-700">Giới Tính</span>}
+                  rules={[{ required: true, message: "Vui lòng chọn giới tính!" }]}
+                >
+                  <Select
+                    placeholder="Chọn giới tính"
+                    className="w-full"
+                    dropdownClassName="rounded-lg"
+                    style={{ height: "48px" }}
+                  >
                     <Select.Option value="Male">Nam</Select.Option>
                     <Select.Option value="Female">Nữ</Select.Option>
-                    <Select.Option value="Unisex">Unisex</Select.Option>
+                    <Select.Option value="Kids">Trẻ Em</Select.Option>
                   </Select>
                 </Form.Item>
               </div>
- Filippo             <div>
-                <label className="text-lg font-semibold text-gray-800">Thương hiệu</label>
-                <Form.Item name="brand" rules={[{ required: true, message: "Bắt buộc nhập thương hiệu!" }]}>
-                  <Input placeholder="Nhập thương hiệu" className="text-gray-700 p-4 rounded-lg border-2 border-gray-300 focus:ring-2 focus:ring-blue-600 outline-none" />
+              <div>
+                <Form.Item
+                  name="brand"
+                  label={<span className="text-sm font-medium text-gray-700">Thương Hiệu</span>}
+                  rules={[{ required: true, message: "Vui lòng chọn thương hiệu!" }]}
+                >
+                  <Select
+                    placeholder="Chọn thương hiệu"
+                    className="w-full"
+                    dropdownClassName="rounded-lg"
+                    style={{ height: "48px" }}
+                  >
+                    {brands.map((brand: IBrand) => (
+                      <Select.Option key={brand._id} value={brand._id}>
+                        {brand.name}
+                      </Select.Option>
+                    ))}
+                  </Select>
                 </Form.Item>
               </div>
             </div>
           </div>
 
-          {/* Variants Section */}
-          <div className="mt-6">
-            <h3 className="text-lg font-semibold text-gray-800">Biến thể sản phẩm</h3>
+          <div className="mt-8">
+            <h3 className="text-xl font-semibold text-gray-900 mb-4">Biến Thể Sản Phẩm</h3>
             {variants.map((variant, variantIndex) => (
-              <div key={variantIndex} className="mb-6 border p-4 rounded-lg">
-                <div className="grid grid-cols-4 gap-4 mb-4 items-center">
-                  <Select
-                    placeholder="Chọn màu"
-                    value={variant.color}
-                    onChange={(value) => handleVariantChange(variantIndex, "color", value)}
-                    className="w-full h-12 rounded-lg border-2 border-gray-300"
-                    options={[
-                      { value: "Red", label: "🔴 Đỏ" },
-                      { value: "Blue", label: "🔵 Xanh" },
-                      { value: "Green", label: "🟢 Lục" },
-                      { value: "Black", label: "⚫ Đen" },
-                      { value: "White", label: "⚪ Trắng" },
-                    ]}
-                  />
-                  <Input
-                    type="number"
-                    placeholder="Giá cơ bản"
-                    value={variant.basePrice}
-                    onChange={(e) => handleVariantChange(variantIndex, "basePrice", e.target.value)}
-                    className="p-3 h-12 rounded-lg border-2 border-gray-300 focus:ring-2 focus:ring-blue-600"
-                  />
-                  <Input
-                    type="number"
-                    placeholder="Giảm giá (VND)"
-                    value={variant.discount}
-                    onChange={(e) => handleVariantChange(variantIndex, "discount", e.target.value)}
-                    className="p-3 h-12 rounded-lg border-2 border-gray-300 focus:ring-2 focus:ring-blue-600"
-                  />
-                  <Button type="default" danger onClick={() => removeVariant(variantIndex)}>
-                    Xóa biến thể
-                  </Button>
+              <div key={variantIndex} className="mb-6 border border-gray-200 p-6 rounded-lg shadow-sm">
+                <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-4">
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 block mb-2">Màu Sắc</label>
+                    <Select
+                      placeholder="Chọn màu sắc"
+                      value={variant.color}
+                      onChange={(value) => handleVariantChange(variantIndex, "color", value)}
+                      className="w-full"
+                      dropdownClassName="rounded-lg"
+                      style={{ height: "48px" }}
+                    >
+                      {colors.map((color: IColor) => (
+                        <Select.Option key={color._id} value={color._id}>
+                          <div className="flex items-center">
+                            <span
+                              className="inline-block w-4 h-4 mr-2 rounded-full"
+                              style={{ backgroundColor: color.hexCode }}
+                            ></span>
+                            {color.name}
+                          </div>
+                        </Select.Option>
+                      ))}
+                    </Select>
+                  </div>
+                  <Form.Item
+                    name={`basePrice-${variantIndex}`}
+                    label={<span className="text-sm font-medium text-gray-700">Giá Cơ Bản (VND)</span>}
+                    rules={[{ required: true, message: "Giá cơ bản là bắt buộc!" }]}
+                  >
+                    <Input
+                      type="number"
+                      placeholder="Nhập giá cơ bản"
+                      value={variant.basePrice}
+                      onChange={(e) => handleVariantChange(variantIndex, "basePrice", e.target.value)}
+                      className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
+                    />
+                  </Form.Item>
+                  <Form.Item
+                    name={`discount-${variantIndex}`}
+                    label={<span className="text-sm font-medium text-gray-700">Giảm Giá (VND)</span>}
+                  >
+                    <Input
+                      type="number"
+                      placeholder="Nhập giảm giá (không bắt buộc)"
+                      value={variant.discount}
+                      onChange={(e) => handleVariantChange(variantIndex, "discount", e.target.value)}
+                      className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
+                    />
+                  </Form.Item>
+                  <div className="flex items-end">
+                    <button
+                      type="button"
+                      onClick={() => removeVariant(variantIndex)}
+                      className="w-full px-4 py-3 bg-red-600 text-white font-semibold rounded-lg shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition duration-200"
+                    >
+                      Xóa Biến Thể
+                    </button>
+                  </div>
                 </div>
 
-                {/* Variant Images */}
-                <div className="mb-4">
-                  <label className="text-md font-medium text-gray-700">Ảnh của biến thể</label>
-                  <div className="flex flex-wrap gap-4 mt-2">
-                    {variant.img.map((preview, index) => (
-                      <div key={index} className="relative w-28 h-28">
-                        <img src={preview} alt={`Preview ${index}`} className="w-full h-full object-cover rounded-lg shadow-md" />
-                        <button onClick={() => handleRemoveVariantImage(variantIndex, preview)} className="absolute top-0 right-0 bg-red-600 text-white text-xs p-2 rounded-full shadow-md">x</button>
+                <div className="mb-6">
+                  <label className="text-sm font-medium text-gray-700 block mb-2">Ảnh Biến Thể</label>
+                  <div className="flex flex-wrap gap-4 mb-4">
+                    {variant.imagePreviews.map((preview, imageIndex) => (
+                      <div
+                        key={imageIndex}
+                        className="relative w-32 h-32 group rounded-lg overflow-hidden shadow-md hover:shadow-lg transition duration-200"
+                      >
+                        <img
+                          src={preview}
+                          alt={`Xem trước ${imageIndex}`}
+                          className="w-full h-full object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveVariantImage(variantIndex, preview)}
+                          className="absolute top-2 right-2 bg-red-600 text-white text-xs p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-red-700"
+                        >
+                          ✕
+                        </button>
                       </div>
                     ))}
                   </div>
-                  <Input
-                    type="file"
-                    multiple
-                    onChange={(e) => handleVariantImageChange(variantIndex, e)}
-                    className="p-4 rounded-lg border-2 border-gray-300 focus:ring-2 focus:ring-blue-600 outline-none mt-2"
-                  />
+                  <div className="relative">
+                    <Input
+                      type="file"
+                      multiple
+                      onChange={(e) => handleVariantImageChange(variantIndex, e)}
+                      className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
+                      accept="image/*"
+                    />
+                  </div>
                 </div>
 
-                {/* Sub-Variants */}
                 <div className="ml-4">
-                  <h4 className="text-md font-medium text-gray-700">Biến thể con:</h4>
+                  <h4 className="text-md font-semibold text-gray-800 mb-3">Sub-Variants</h4>
                   {variant.subVariants.map((subVariant, subIndex) => (
-                    <div key={subIndex} className="grid grid-cols-5 gap-4 mb-2 items-center">
-                      <Input
-                        placeholder="Thông số (e.g., Storage)"
-                        value={subVariant.specification}
-                        onChange={(e) => handleSubVariantChange(variantIndex, subIndex, "specification", e.target.value)}
-                        className="p-3 h-12 rounded-lg border-2 border-gray-300 focus:ring-2 focus:ring-blue-600"
-                      />
-                      <Input
-                        placeholder="Giá trị (e.g., 128GB)"
-                        value={subVariant.value}
-                        onChange={(e) => handleSubVariantChange(variantIndex, subIndex, "value", e.target.value)}
-                        className="p-3 h-12 rounded-lg border-2 border-gray-300 focus:ring-2 focus:ring-blue-600"
-                      />
-                      <Input
-                        type="number"
-                        placeholder="Giá thêm (VND)"
-                        value={subVariant.additionalPrice}
-                        onChange={(e) => handleSubVariantChange(variantIndex, subIndex, "additionalPrice", e.target.value)}
-                        className="p-3 h-12 rounded-lg border-2 border-gray-300 focus:ring-2 focus:ring-blue-600"
-                      />
-                      <Input
-                        type="number"
-                        placeholder="Số lượng"
-                        value={subVariant.quantity}
-                        onChange={(e) => handleSubVariantChange(variantIndex, subIndex, "quantity", e.target.value)}
-                        className="p-3 h-12 rounded-lg border-2 border-gray-300 focus:ring-2 focus:ring-blue-600"
-                      />
-                      <Button type="default" danger onClick={() => removeSubVariant(variantIndex, subIndex)}>
-                        Xóa
-                      </Button>
+                    <div key={subIndex} className="grid grid-cols-1 sm:grid-cols-5 gap-4 mb-4 items-end">
+                      <Form.Item
+                        name={`specification-${variantIndex}-${subIndex}`}
+                        label={<span className="text-sm font-medium text-gray-700">Thông Số</span>}
+                        rules={[{ required: true, message: "Thông số là bắt buộc!" }]}
+                      >
+                        <Input
+                          placeholder="Ví dụ: Dung lượng"
+                          value={subVariant.specification}
+                          onChange={(e) => handleSubVariantChange(variantIndex, subIndex, "specification", e.target.value)}
+                          className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
+                        />
+                      </Form.Item>
+                      <Form.Item
+                        name={`value-${variantIndex}-${subIndex}`}
+                        label={<span className="text-sm font-medium text-gray-700">Giá Trị</span>}
+                        rules={[{ required: true, message: "Giá trị là bắt buộc!" }]}
+                      >
+                        <Input
+                          placeholder="Ví dụ: 128GB"
+                          value={subVariant.value}
+                          onChange={(e) => handleSubVariantChange(variantIndex, subIndex, "value", e.target.value)}
+                          className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
+                        />
+                      </Form.Item>
+                      <Form.Item
+                        name={`additionalPrice-${variantIndex}-${subIndex}`}
+                        label={<span className="text-sm font-medium text-gray-700">Giá Thêm (VND)</span>}
+                        rules={[{ required: true, message: "Giá thêm là bắt buộc!" }]}
+                      >
+                        <Input
+                          type="number"
+                          placeholder="Giá thêm"
+                          value={subVariant.additionalPrice}
+                          onChange={(e) => handleSubVariantChange(variantIndex, subIndex, "additionalPrice", e.target.value)}
+                          className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
+                        />
+                      </Form.Item>
+                      <Form.Item
+                        name={`subQuantity-${variantIndex}-${subIndex}`}
+                        label={<span className="text-sm font-medium text-gray-700">Số Lượng</span>}
+                        rules={[{ required: true, message: "Số lượng là bắt buộc!" }]}
+                      >
+                        <Input
+                          type="number"
+                          placeholder="Số lượng"
+                          value={subVariant.quantity}
+                          onChange={(e) => handleSubVariantChange(variantIndex, subIndex, "quantity", e.target.value)}
+                          className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
+                        />
+                      </Form.Item>
+                      <div>
+                        <button
+                          type="button"
+                          onClick={() => removeSubVariant(variantIndex, subIndex)}
+                          className="w-full px-4 py-3 bg-red-600 text-white font-semibold rounded-lg shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition duration-200"
+                        >
+                          Xóa
+                        </button>
+                      </div>
                     </div>
                   ))}
-                  <Button type="dashed" onClick={() => addSubVariant(variantIndex)} className="mt-2">
+                  <button
+                    type="button"
+                    onClick={() => addSubVariant(variantIndex)}
+                    className="px-4 py-2 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition duration-200"
+                  >
                     Thêm Sub-Variant
-                  </Button>
+                  </button>
                 </div>
               </div>
             ))}
-            <Button type="dashed" onClick={addVariant} className="mt-4">
-              Thêm biến thể
-            </Button>
+            <button
+              type="button"
+              onClick={addVariant}
+              className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200"
+            >
+              Thêm Biến Thể
+            </button>
           </div>
 
-          {/* Submit Button */}
-          <div className="mt-8 text-center">
-            <Button type="primary" htmlType="submit" className="w-full h-12">
-              Cập nhật sản phẩm
-            </Button>
+          <div className="mt-8 flex justify-end">
+            <button
+              type="submit"
+              className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200"
+            >
+              Cập Nhật Sản Phẩm
+            </button>
           </div>
         </Form>
       </div>

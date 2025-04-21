@@ -25,6 +25,8 @@ import DeactivationHistory from "./DeactivationHistory";
 import { checkUserActiveStatus } from "./middleware/Kickuser";
 import { Voucher } from "./Voucher";
 import { validateCartPrices } from "./utils/validateCartPrices";
+import Color from "./color";
+import Brand from "./brand";
 const http = require("http");
 const socketIo = require("socket.io");
 
@@ -122,6 +124,111 @@ app.post(
     }
   }
 );
+
+app.post("/api/wishlist/add", async (req: Request, res: Response) => {
+  try {
+    const { userId, productId } = req.body;
+
+    // Validate inputs
+    if (!userId || !productId) {
+      return res.status(400).json({ message: "User ID và Product ID là bắt buộc" });
+    }
+
+    // Check if the user exists
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "Không tìm thấy người dùng" });
+    }
+
+    // Check if the product exists
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ message: "Không tìm thấy sản phẩm" });
+    }
+
+    // Check if the product is already in the wishlist
+    if (user.wishlist.includes(productId)) {
+      return res.status(400).json({ message: "Sản phẩm đã có trong danh sách yêu thích" });
+    }
+
+    // Add the product to the wishlist
+    user.wishlist.push(productId);
+    await user.save();
+
+    res.status(200).json({ message: "Thêm sản phẩm vào danh sách yêu thích thành công", wishlist: user.wishlist });
+  } catch (error) {
+    console.error("Lỗi khi thêm vào danh sách yêu thích:", error);
+    res.status(500).json({ message: "Lỗi server" });
+  }
+});
+
+// Remove a product from the wishlist
+app.post("/api/wishlist/remove", async (req: Request, res: Response) => {
+  try {
+    const { userId, productId } = req.body;
+
+    // Validate inputs
+    if (!userId || !productId) {
+      return res.status(400).json({ message: "User ID và Product ID là bắt buộc" });
+    }
+
+    // Check if the user exists
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "Không tìm thấy người dùng" });
+    }
+
+    // Check if the product is in the wishlist
+    const productIndex = user.wishlist.indexOf(productId);
+    if (productIndex === -1) {
+      return res.status(400).json({ message: "Sản phẩm không có trong danh sách yêu thích" });
+    }
+
+    // Remove the product from the wishlist
+    user.wishlist.splice(productIndex, 1);
+    await user.save();
+
+    res.status(200).json({ message: "Xóa sản phẩm khỏi danh sách yêu thích thành công", wishlist: user.wishlist });
+  } catch (error) {
+    console.error("Lỗi khi xóa khỏi danh sách yêu thích:", error);
+    res.status(500).json({ message: "Lỗi server" });
+  }
+});
+
+// Get the user's wishlist
+app.get("/api/wishlist/:userId", async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+
+    // Validate input
+    if (!userId) {
+      return res.status(400).json({ message: "User ID là bắt buộc" });
+    }
+
+    // Find the user and populate the wishlist with product details
+    const user = await User.findById(userId).populate({
+      path: "wishlist",
+      populate: [
+        { path: "brand" }, // Populate brand details
+        { path: "category" }, // Populate category details
+        { path: "variants.color" }, // Populate color details in variants
+      ],
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "Không tìm thấy người dùng" });
+    }
+
+    res.status(200).json({ wishlist: user.wishlist });
+  } catch (error) {
+    console.error("Lỗi khi lấy danh sách yêu thích:", error);
+    res.status(500).json({ message: "Lỗi server" });
+  }
+});
+
+
+
+
 
 app.get("/users", async (req: Request, res: Response) => {
   try {
@@ -545,7 +652,10 @@ app.get("/product-test", async (req, res) => {
     const options = {
       page: Number(page),
       limit: Number(limit),
-      populate: "category",
+      populate: [
+        { path: "category" },
+        { path: "variants.color", model: "Color" },
+      ],
     };
 
     const products = await Product.paginate({}, options);
@@ -557,14 +667,27 @@ app.get("/product-test", async (req, res) => {
 // Lấy một sản phẩm theo ID
 app.get("/product/:id", async (req: Request, res: Response) => {
   try {
+    // Validate the ID format (MongoDB ObjectId)
+    if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({ message: "ID sản phẩm không hợp lệ" });
+    }
+
+    // Fetch the product and populate referenced fields
     const product = await Product.findById(req.params.id)
+      .populate("variants.color") // Populate color in variants
+      .populate("brand") // Populate brand
+      .populate("category"); // Populate category
+
+    // Check if product exists
     if (!product) {
       return res.status(404).json({ message: "Không tìm thấy sản phẩm" });
     }
+
+    // Return the product
     res.status(200).json(product);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Lỗi lấy sản phẩm" });
+    console.error("Error fetching product:", error);
+    res.status(500).json({ message: "Lỗi lấy sản phẩm", error});
   }
 });
 
@@ -2192,6 +2315,158 @@ app.get("/user/:id/status", async (req: Request, res: Response) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
+
+
+app.post("/api/brands", async (req, res) => {
+  try {
+    const { name, image } = req.body;
+    if (!name || !image) {
+      return res.status(400).json({ message: "Name and image are required" });
+    }
+    const brand = new Brand({ name, image });
+    await brand.save();
+    res.status(201).json(brand);
+  } catch (error) {
+    res.status(500).json({ message: "Error creating brand", error });
+  }
+});
+
+// Get all brands
+app.get("/api/brands", async (req, res) => {
+  try {
+    const brands = await Brand.find();
+    res.status(200).json(brands);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching brands", error });
+  }
+});
+
+// Get a single brand by ID
+app.get("/api/brands/:id", async (req, res) => {
+  try {
+    const brand = await Brand.findById(req.params.id);
+    if (!brand) {
+      return res.status(404).json({ message: "Brand not found" });
+    }
+    res.status(200).json(brand);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching brand", error });
+  }
+});
+
+// Update a brand
+app.put("/api/brands/:id", async (req, res) => {
+  try {
+    const { name, image } = req.body;
+    if (!name) {
+      return res.status(400).json({ message: "Name is required" });
+    }
+    const updateData: any = { name };
+    if (image) {
+      updateData.image = image;
+    }
+    const brand = await Brand.findByIdAndUpdate(req.params.id, updateData, {
+      new: true,
+    });
+    if (!brand) {
+      return res.status(404).json({ message: "Brand not found" });
+    }
+    res.status(200).json(brand);
+  } catch (error) {
+    res.status(500).json({ message: "Error updating brand", error });
+  }
+});
+
+// Delete a brand
+app.delete("/api/brands/:id", async (req, res) => {
+  try {
+    const brand = await Brand.findByIdAndDelete(req.params.id);
+    if (!brand) {
+      return res.status(404).json({ message: "Brand not found" });
+    }
+    res.status(200).json({ message: "Brand deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Error deleting brand", error });
+  }
+});
+
+// Color Routes (without image uploads)
+// Create a new color
+app.post("/api/colors", async (req, res) => {
+  try {
+    const { name, hexCode } = req.body;
+    if (!name || !hexCode) {
+      return res.status(400).json({ message: "Name and hexCode are required" });
+    }
+    const color = new Color({ name, hexCode });
+    await color.save();
+    res.status(201).json(color);
+  } catch (error) {
+    res.status(500).json({ message: "Error creating color", error });
+  }
+});
+
+// Get all colors
+app.get("/api/colors", async (req, res) => {
+  try {
+    const colors = await Color.find();
+    res.status(200).json(colors);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching colors", error });
+  }
+});
+
+// Get a single color by ID
+app.get("/api/colors/:id", async (req, res) => {
+  try {
+    const color = await Color.findById(req.params.id);
+    if (!color) {
+      return res.status(404).json({ message: "Color not found" });
+    }
+    res.status(200).json(color);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching color", error });
+  }
+});
+
+
+app.put("/api/colors/:id", async (req, res) => {
+  try {
+    const { name, hexCode } = req.body;
+    if (!name || !hexCode) {
+      return res.status(400).json({ message: "Name and hexCode are required" });
+    }
+    const cleanedId = req.params.id.replace(/^:/, ""); // Remove leading colon
+    const color = await Color.findByIdAndUpdate(
+      cleanedId,
+      { name, hexCode },
+      { new: true }
+    );
+    if (!color) {
+      return res.status(404).json({ message: "Color not found" });
+    }
+    res.status(200).json(color);
+  } catch (error) {
+    res.status(500).json({ message: "Error updating color", error });
+  }
+});
+
+// Delete a color
+app.delete("/api/colors/:id", async (req, res) => {
+  try {
+    const cleanedId = req.params.id.replace(/^:/, ""); // Remove leading colon
+    const color = await Color.findByIdAndDelete(cleanedId);
+    if (!color) {
+      return res.status(404).json({ message: "Color not found" });
+    }
+    res.status(200).json({ message: "Color deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Error deleting color", error });
+  }
+});
+
+
+
 
 app.listen(PORT, () => {
   console.log(`Server đang lắng nghe tại cổng ${PORT}`);

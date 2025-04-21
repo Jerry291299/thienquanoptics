@@ -2,17 +2,17 @@ import mongoose, { Schema, Document } from "mongoose";
 import mongoosePaginate from "mongoose-paginate-v2";
 
 export interface SubVariant {
-  specification: string; // e.g., "Storage"
-  value: string; // e.g., "128GB"
+  specification: string;
+  value: string;
   additionalPrice: number;
   quantity: number;
 }
 
 export interface Variant {
-  color: string;
+  color: mongoose.Schema.Types.ObjectId; // Reference to Color model
   basePrice: number;
-  discount?: number; // Optional, as in frontend
-  images: string[]; // Add images field for each variant
+  discount?: number;
+  images: string[];
   subVariants: SubVariant[];
 }
 
@@ -20,9 +20,9 @@ export interface Product extends Document {
   masp: string;
   name: string;
   moTa: string;
-  brand: string;
+  brand: mongoose.Schema.Types.ObjectId; // Reference to Brand model
   category: mongoose.Schema.Types.ObjectId;
-  gender: string; // Add gender field
+  gender: string;
   status: boolean;
   variants: Variant[];
   createdAt: Date;
@@ -37,11 +37,11 @@ const SubVariantSchema: Schema = new Schema({
 });
 
 const VariantSchema: Schema = new Schema({
-  color: { type: String, required: true },
+  color: { type: Schema.Types.ObjectId, ref: "Color", required: true }, // Reference to Color
   basePrice: { type: Number, required: true },
   discount: { type: Number, default: 0 },
-  images: [{ type: String, required: true }], // Add images field, required
-  subVariants: [SubVariantSchema], // Quantity is managed here
+  images: [{ type: String, required: true }],
+  subVariants: [SubVariantSchema],
 });
 
 const ProductSchema: Schema = new Schema(
@@ -49,11 +49,11 @@ const ProductSchema: Schema = new Schema(
     masp: { type: String, required: true, unique: true },
     name: { type: String, required: true },
     moTa: { type: String, required: true },
-    brand: { type: String, required: true },
+    brand: { type: Schema.Types.ObjectId, ref: "Brand", required: true }, // Reference to Brand
     category: { type: Schema.Types.ObjectId, ref: "Category", required: true },
     gender: {
       type: String,
-      enum: ["Male", "Female", "Kids"], // Restrict to specific values
+      enum: ["Male", "Female", "Kids"],
       required: true,
     },
     status: { type: Boolean, required: true },

@@ -18,6 +18,7 @@ export interface User extends Document {
     date: Date;
     deactivatedBy: string; // ID của admin
   }>;
+  wishlist: mongoose.Schema.Types.ObjectId[]; // Array of Product IDs
 }
 
 const UserSchema: Schema = new Schema(
@@ -29,7 +30,6 @@ const UserSchema: Schema = new Schema(
     gender: { type: String, enum: ["Male", "Female", "Other"], required: false },
     address: { type: String, required: false },
     phone: { type: String, required: false },
-
     password: { type: String, required: true },
     role: {
       type: String,
@@ -45,8 +45,9 @@ const UserSchema: Schema = new Schema(
         deactivatedBy: { type: String, required: true }, // ID của admin
       },
     ],
+    wishlist: [{ type: Schema.Types.ObjectId, ref: "Product" }], // Reference to Product model
   },
-  { timestamps: true } // Thêm timestamps
+  { timestamps: true }
 );
 
 export default mongoose.model<User>("User", UserSchema);

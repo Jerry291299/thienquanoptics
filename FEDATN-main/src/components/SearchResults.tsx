@@ -79,9 +79,9 @@ const SearchResults = () => {
               const firstImage =
                 product.variants &&
                 product.variants.length > 0 &&
-                product.variants[0].img &&
-                product.variants[0].img.length > 0
-                  ? product.variants[0].img[0]
+                product.variants[0].images &&
+                product.variants[0].images.length > 0
+                  ? product.variants[0].images[0]
                   : "https://via.placeholder.com/150"; // Fallback image if no variant image
 
               return (

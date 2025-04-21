@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import logo from "./img/logo.png";
+import logo from "../img/logothiênquangdo-01.png";
+
 type Props = {};
 
 const Navbar = (props: Props) => {
@@ -16,6 +17,7 @@ const Navbar = (props: Props) => {
       setUser(JSON.parse(userData));
     }
   }, []);
+
   const handleLogout = () => {
     sessionStorage.removeItem("user");
     setUser(null);
@@ -30,24 +32,21 @@ const Navbar = (props: Props) => {
           id="sidenav-main"
         >
           {/* Header */}
-          <div className="flex items-center justify-between px-16 h-[96px] bg-white text-Black">
-            <div className="logo w-[70px] mr-[19px]">
+          <div className="flex items-center justify-between px-8 h-[96px] bg-white text-Black">
+            <div className="logo w-[250px] mr-[19px]">
               <img className="w-full" src={logo} alt="" />
             </div>
-            <h1 className="text-lg font-semibold">
-              {user?.info?.role === "admin" && "Admin"}
-              {user?.info?.role === "shipper" && "Shipper"}
-            </h1>
+            
           </div>
 
           {/* User Profile */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-            <div className="flex items-center space-x-4">
+            {/* <div className="flex items-center space-x-4">
               <div className="w-10 h-10 bg-gray-300 rounded-full" />
               <div>
                 <p className="font-medium text-gray-800">{user?.info?.email}</p>
               </div>
-            </div>
+            </div> */}
           </div>
 
           {/* Navigation Links */}
@@ -62,7 +61,6 @@ const Navbar = (props: Props) => {
                 </NavLink>
               </li>
 
-              
               <li>
                 <button
                   onClick={handleLogout}
@@ -79,14 +77,14 @@ const Navbar = (props: Props) => {
                   Chức năng:
                 </h2>
                 <ul className="space-y-2 text-md">
-                <li>
-                <NavLink
-                  to="/admin/thongke"
-                  className="flex items-center px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition"
-                >
-                  Thống kê
-                </NavLink>
-              </li>
+                  <li>
+                    <NavLink
+                      to="/admin/thongke"
+                      className="flex items-center px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition"
+                    >
+                      Thống kê
+                    </NavLink>
+                  </li>
                   <li>
                     <NavLink
                       to="/admin/users"
@@ -127,7 +125,22 @@ const Navbar = (props: Props) => {
                       Danh mục
                     </NavLink>
                   </li>
-                 
+                  <li>
+                    <NavLink
+                      to="/admin/brands"
+                      className="flex items-center px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition"
+                    >
+                      Thương hiệu
+                    </NavLink>
+                  </li>
+                  <li>
+                    <NavLink
+                      to="/admin/colors"
+                      className="flex items-center px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition"
+                    >
+                      Màu sắc
+                    </NavLink>
+                  </li>
                   <li>
                     <NavLink
                       to="/admin/dashboard"
@@ -154,7 +167,6 @@ const Navbar = (props: Props) => {
                   Chức năng:
                 </h2>
                 <ul className="space-y-2 text-md">
-                  
                   <li>
                     <NavLink
                       to="/shipper/orders"

@@ -1,70 +1,243 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 
-
-type Props = {};
+// Import icons (you can use react-icons or any other icon library)
+import { FaFacebookF, FaYoutube, FaWhatsapp, FaInstagram, FaTiktok } from "react-icons/fa";
+import { NavLink } from "react-router-dom";
 
 const Footer = () => {
   return (
-    <footer className="bg-gray-100 py-6 text-sm">
-      <div className="container pt-[80px] border-t-2 border-black mx-auto px-4">
-        {/* Top Section */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          {/* Support Section */}
-          <div>
-            <h3 className="font-bold">Tổng đài hỗ trợ</h3>
-            <p>Gọi mua: <span className="text-blue-600 font-semibold">1900 232 460</span> (8:00 - 21:30)</p>
-            <p>Khiếu nại: <span className="text-blue-600 font-semibold">1800 1062</span> (8:00 - 21:30)</p>
-            <p>Bảo hành: <span className="text-blue-600 font-semibold">1900 232 464</span> (8:00 - 21:00)</p>
+    <footer className="bg-white border-t pt-[130px] border-gray-200 py-8">
+      <div className="container mx-auto px-4 md:px-8 lg:px-16">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          {/* Column 1: Support Information */}
+          <div className="border-r-2 border-gray  pr-4">
+            <h3 className="text-lg font-bold text-gray-800 mb-4">
+              Bạn cần trợ giúp không?
+            </h3>
+            <p className="text-gray-600 mb-2">
+              <span className="font-semibold text-[#]">028 7777 7999</span>
+            </p>
+            <p className="text-gray-600 mb-2">
+              Miễn phí trên toàn quốc định vị và đóng gói Hóa Kỳ.
+            </p>
+            <p className="text-gray-600 mb-2">
+              <span className="font-semibold">Email:</span>{" "}
+              <a href="mailto:sales@matbao.ws" className="text-gray-600 hover:text-gray-800">
+                thienquanoptics@gmail.com
+              </a>
+            </p>
+            <p className="text-gray-600">
+              Giờ làm việc của Trung tâm cuộc gọi Thứ Hai - Chủ Nhật 09:00-19:00
+            </p>
           </div>
 
-          {/* Company Info */}
-          <div>
-            <h3 className="font-bold">Về công ty</h3>
-            <ul>
-              <li><a href="#" className="hover:underline">Giới thiệu công ty (MWG.vn)</a></li>
-              <li><a href="#" className="hover:underline">Tuyển dụng</a></li>
-              <li><a href="#" className="hover:underline">Gửi góp ý, khiếu nại</a></li>
-              <li><a href="#" className="hover:underline">Tìm siêu thị (2.962 shop)</a></li>
+          {/* Column 2: Helpful Information */}
+          <div className="pl-[80px]">
+            <h3 className="text-lg font-bold text-gray-800 mb-4">
+              Hay để chúng tôi giúp bạn
+            </h3>
+            <ul className="space-y-2">
+              <li>
+                <a href="#" className="text-gray-600 hover:text-gray-800">
+                  Tuyển vễ vệ khách hàng trực cấp
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-gray-600 hover:text-gray-800">
+                  Đơn đặt hàng của bạn
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-gray-600 hover:text-gray-800">
+                  Tra lại & Thay thế
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-gray-600 hover:text-gray-800">
+                  Giao & Chính sách vận chuyển
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-gray-600 hover:text-gray-800">
+                  Chính sách hoàn tiền và trả lại
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-gray-600 hover:text-gray-800">
+                  Chính sách bảo mật
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-gray-600 hover:text-gray-800">
+                  Điều khoản và Điều kiện
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-gray-600 hover:text-gray-800">
+                  Cai đặt cookie
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-gray-600 hover:text-gray-800">
+                  Trung tâm trợ giúp
+                </a>
+              </li>
             </ul>
           </div>
 
-          {/* Other Info */}
-          <div>
-            <h3 className="font-bold">Thông tin khác</h3>
-            <ul>
-              <li><a href="#" className="hover:underline">Tích điểm Quà tặng VIP</a></li>
-              <li><a href="#" className="hover:underline">Lịch sử mua hàng</a></li>
-              <li><a href="#" className="hover:underline">Đăng ký bán hàng CTV</a></li>
-              <li><a href="#" className="hover:underline">Tìm hiểu về mua trả chậm</a></li>
-              <li><a href="#" className="hover:underline">Chính sách bảo hành</a></li>
-              <li><a href="#" className="hover:underline">Xem thêm</a></li>
+          {/* Column 3: Enjoy with Us */}
+          <div className="pl-[80px]">
+            <h3 className="text-lg font-bold text-gray-800 mb-4">
+              Kiếm tiền với chúng tôi
+            </h3>
+            <ul className="space-y-2">
+              <li>
+                <a href="#" className="text-gray-600 hover:text-gray-800">
+                  Bán trên Blonwe
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-gray-600 hover:text-gray-800">
+                  Bán dịch vụ của bạn trên Blonwe
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-gray-600 hover:text-gray-800">
+                  Bán trên Blonwe Business
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-gray-600 hover:text-gray-800">
+                  Bán ứng dụng của bạn trên Blonwe
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-gray-600 hover:text-gray-800">
+                  Trở thành một chi nhánh
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-gray-600 hover:text-gray-800">
+                  Quảng cáo sản phẩm của bạn
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-gray-600 hover:text-gray-800">
+                  Bán-Xuất bản với chúng tôi
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-gray-600 hover:text-gray-800">
+                  Trở thành nhà cung cấp Blonwe
+                </a>
+              </li>
             </ul>
           </div>
 
-          {/* Group Websites */}
-          <div>
-            <h3 className="font-bold">Website cùng tập đoàn</h3>
-            <div className="flex flex-wrap gap-2">
-              <img src="/topzone.png" alt="TopZone" className="h-6" />
-              <img src="/dienmayxanh.png" alt="Điện Máy Xanh" className="h-6" />
-              <img src="/bachhoaxanh.png" alt="Bách Hóa Xanh" className="h-6" />
-              <img src="/ankhang.png" alt="An Khang" className="h-6" />
-              <img src="/weclam.png" alt="Việc Làm" className="h-6" />
-              <img src="/erablue.png" alt="EraBlue" className="h-6" />
-            </div>
+          {/* Column 4: Get to Know Us */}
+          <div className="pl-[80px]">
+            <h3 className="text-lg font-bold text-gray-800 mb-4">
+              Làm quen với chúng tôi
+            </h3>
+            <ul className="space-y-2">
+              <li>
+                <a href="#" className="text-gray-600 hover:text-gray-800">
+                  Sứ nghiệp cho Blonwe
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-gray-600 hover:text-gray-800">
+                  Giới thiệu về Blonwe
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-gray-600 hover:text-gray-800">
+                  Quan hệ đầu ngước
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-gray-600 hover:text-gray-800">
+                  Thiết bị Blonwe
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-gray-600 hover:text-gray-800">
+                  Đánh giá của khách hàng
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-gray-600 hover:text-gray-800">
+                  Trách nhiệm xã hội
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-gray-600 hover:text-gray-800">
+                  Địa điểm cửa hàng
+                </a>
+              </li>
+            </ul>
           </div>
         </div>
 
-        {/* Bottom Section */}
-        <div className="mt-6 text-center text-gray-600">
-          <p>© 2025 Công ty Cổ phần Thế Giới Di Động. GPKD: 0303217354 do Sở KH & ĐT TP.HCM cấp ngày 02/01/2007.</p>
-          <p>Địa chỉ: 128 Trần Quang Khải, P. Tân Định, Q.1, TP. Hồ Chí Minh.</p>
-          <p>Email: <a href="mailto:cskh@thegioididong.com" className="text-blue-600">cskh@thegioididong.com</a></p>
-          <div className="flex justify-center gap-4 mt-4">
-            <img src="/dmca.png" alt="DMCA" className="h-6" />
-            <img src="/protected.png" alt="Protected" className="h-6" />
-            <img src="/bocongthuong.png" alt="Bộ Công Thương" className="h-6" />
+        {/* Social Media, App Links, and Payment Methods */}
+        <div className="flex flex-col md:flex-row justify-between items-center mt-8 border-t border-gray-200 pt-6">
+          {/* Social Media Icons */}
+          <div className="flex space-x-4 mb-4 md:mb-0">
+            <p className="text-gray-600 font-medium">Theo dõi chúng tôi:</p>
+            <a href="#" className="text-gray-600 hover:text-gray-800">
+              <FaFacebookF size={20} />
+            </a>
+            <a href="#" className="text-gray-600 hover:text-gray-800">
+              <FaYoutube size={20} />
+            </a>
+            <a href="#" className="text-gray-600 hover:text-gray-800">
+              <FaWhatsapp size={20} />
+            </a>
+            <a href="#" className="text-gray-600 hover:text-gray-800">
+              <FaInstagram size={20} />
+            </a>
+            <a href="#" className="text-gray-600 hover:text-gray-800">
+              <FaTiktok size={20} />
+            </a>
           </div>
+
+          {/* App Store Links */}
+          <div className="flex space-x-4 mb-4 md:mb-0">
+            <p className="text-gray-600 font-medium">Tải xuống ứng dụng:</p>
+            <a href="#" className="text-gray-600 hover:text-gray-800">
+              <img
+                src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg"
+                alt="App Store"
+                className="h-8"
+              />
+            </a>
+            <a href="#" className="text-gray-600 hover:text-gray-800">
+              <img
+                src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg"
+                alt="Google Play"
+                className="h-8"
+              />
+            </a>
+          </div>
+
+          {/* Payment Methods */}
+          <div className="flex items-center">
+            <a href="#" className="text-gray-600 hover:text-gray-800 flex items-center">
+              <span className="mr-2">Chứng tối chi nhánh:</span>
+              <img
+                src="https://via.placeholder.com/20x20?text=Payment"
+                alt="Payment Methods"
+                className="h-5"
+              />
+            </a>
+          </div>
+        </div>
+
+        {/* Copyright Notice */}
+        <div className="text-center mt-6 border-t border-gray-200 pt-4">
+          <p className="text-gray-600">
+            Copyright 2025 © Maitbao WordPress Theme. Được bảo lưu. Được cung cấp bởi Maitbao.
+          </p>
         </div>
       </div>
     </footer>

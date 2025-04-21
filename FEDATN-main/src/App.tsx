@@ -1,7 +1,7 @@
 import React from "react";
 import logo from "./logo.svg";
 import "./App.css";
-import { BrowserRouter, Route, Router, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Home from "./layout/Home";
 import Admin from "./layout/Admin";
 import Add from "./components/admin/modaladd/add";
@@ -27,7 +27,6 @@ import Order from "./components/admin/Orderadmin";
 import Success from "./components/success";
 import Donhangpage from "./components/Donhangpage";
 import AddMaterial from "./components/admin/modaladd/addmaterial";
-import { updateMaterial } from "./service/material";
 import UpdateMaterial from "./components/admin/modaladd/updatemaerial";
 import CommentDashboard from "./components/admin/CommentDashboard";
 import Donhang from "./components/Orderlisthistory";
@@ -47,6 +46,16 @@ import ListVouchers from "./components/admin/voucher/ListVoucher";
 import AddVoucher from "./components/admin/voucher/AddVoucher";
 import EditVoucher from "./components/admin/voucher/EditVoucher";
 import Thongke from "./components/admin/thongke";
+import BrandList from "./components/admin/modaladd/brand/listbrand";
+import BrandAdd from "./components/admin/modaladd/brand/brandadd";
+import BrandEdit from "./components/admin/modaladd/brand/brandedit";
+import ColorList from "./components/admin/modaladd/color/colorlist";
+import ColorAdd from "./components/admin/modaladd/color/coloradd";
+import ColorEdit from "./components/admin/modaladd/color/coloredit";
+import Wishlist from "./components/Wishlist";
+// Import Brand and Color components
+
+
 function App() {
   return (
     <>
@@ -72,6 +81,7 @@ function App() {
           <Route path="/tintuc/:id" element={<Tintucdetail />} />
           <Route path="/gioithieu" element={<Gioithieu />} />
           <Route path="/order" element={<OrderPayment />} />
+          <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/donhang" element={<Orderlisthistory />} />
           <Route path="/success" element={<Success />} />
           <Route path="/listdonhang" element={<Donhangpage />} />
@@ -86,7 +96,7 @@ function App() {
             }
           >
             <Route path="thongke" element={<Thongke />} />
-             <Route path="comments" element={<CommentDashboard />} />
+            <Route path="comments" element={<CommentDashboard />} />
             <Route path="add" element={<Add />} />
             <Route path="addNews" element={<AddNews />} />
             <Route path="dashboard" element={<Dashboard />} />
@@ -98,21 +108,22 @@ function App() {
             <Route path="vouchers" element={<ListVouchers />} />
             <Route path="vouchers/:id" element={<EditVoucher />} />
             <Route path="voucher/add" element={<AddVoucher />} />
-            
             <Route path="tintuc" element={<DashboardNews />} />
-            {/* <Route path="dashboard/update/:id" Component={Update}></Route> */}
-            <Route path="dashboard/update/:id" Component={Update}></Route>
-            <Route path="dashboard/view/:id" Component={View}></Route>
-            <Route path="News/updatenews/:id" Component={UpdateNews}></Route>
+            <Route path="dashboard/update/:id" element={<Update />} />
+            <Route path="dashboard/view/:id" element={<View />} />
+            <Route path="News/updatenews/:id" element={<UpdateNews />} />
+            <Route path="Listcategory/updatecategory/:id" element={<Updatecategory />} />
+            <Route path="Material/updateMaterial/:id" element={<UpdateMaterial />} />
 
-            <Route
-              path="Listcategory/updatecategory/:id"
-              Component={Updatecategory}
-            ></Route>
-            <Route
-              path="Material/updateMaterial/:id"
-              Component={UpdateMaterial}
-            ></Route>
+            {/* Brand Routes */}
+            <Route path="brands" element={<BrandList />} />
+            <Route path="brands/add" element={<BrandAdd />} />
+            <Route path="brands/edit/:id" element={<BrandEdit />} />
+
+            {/* Color Routes */}
+            <Route path="colors" element={<ColorList />} />
+            <Route path="colors/add" element={<ColorAdd />} />
+            <Route path="colors/edit/:id" element={<ColorEdit />} />
           </Route>
 
           <Route
@@ -122,9 +133,8 @@ function App() {
                 <Profile />
               </Privaterouter>
             }
-          >
+          ></Route>
 
-          </Route>
           <Route
             path="/shipper"
             element={
@@ -133,7 +143,6 @@ function App() {
               </Privaterouter>
             }
           >
-            {/* {/* <Route path="orders" element={<ShipperOrders />} /> */}
             <Route path="/shipper/orders" element={<OrdersShipper />} />
           </Route>
         </Routes>
